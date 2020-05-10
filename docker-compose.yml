@@ -1,0 +1,60 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:9.6.17-alpine
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'Password1'
+      POSTGRES_DB: 'postgres'
+    volumes:
+      - ./docker-volumes/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d/:ro
+      - ./docker-volumes/postgres/postgresql:/var/lib/postgresql
+    command: postgres -c max_connections=9999 -c shared_buffers=1GB
+
+  pgadmin4:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'postgres@postgr.es'
+      PGADMIN_DEFAULT_PASSWORD: 'Password1'
+    volumes:
+      - ./docker-volumes/pgadmin/data:/var/lib/postgresql/data
+    logging:
+      driver: none
+    depends_on:
+      - postgres
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  redis:
+    image: redis:latest
+    command: redis-server --requirepass redispass
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker-volumes/redis/data:/var/lib/redis
+      - ./docker-volumes/redis/conf:/usr/local/etc/redis/redis.conf
+
+  tomcat:
+    image: tomcat:8-jdk14-openjdk-oracle
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8009:8009"
+    volumes:
+#      - ./docker-volumes/tomcat/webapps:/usr/local/tomcat/webapps
+#      - ./docker-volumes/tomcat/conf:/usr/local/tomcat/conf
+      - ./docker-volumes/tomcat/logs:/usr/local/tomcat/logs
