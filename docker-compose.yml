@@ -48,13 +48,13 @@ services:
       - ./docker-volumes/redis/data:/var/lib/redis
       - ./docker-volumes/redis/conf:/usr/local/etc/redis/redis.conf
 
-  tomcat:
-    image: tomcat:8-jdk14-openjdk-oracle
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-      - "8009:8009"
-    volumes:
-#      - ./docker-volumes/tomcat/webapps:/usr/local/tomcat/webapps
-#      - ./docker-volumes/tomcat/conf:/usr/local/tomcat/conf
-      - ./docker-volumes/tomcat/logs:/usr/local/tomcat/logs
+#  tomcat:
+#    image: tomcat:8-jdk14-openjdk-oracle
+#    restart: unless-stopped
+#    ports:
+#      - "8080:8080"
+#      - "8009:8009"
+#    volumes:
+##      - ./docker-volumes/tomcat/webapps:/usr/local/tomcat/webapps
+##      - ./docker-volumes/tomcat/conf:/usr/local/tomcat/conf
+#      - ./docker-volumes/tomcat/logs:/usr/local/tomcat/logs
