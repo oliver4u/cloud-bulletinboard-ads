@@ -6,9 +6,9 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_USER: 'postgres'
-      POSTGRES_PASSWORD: 'Password1'
-      POSTGRES_DB: 'postgres'
+      POSTGRES_USER: 'testuser'
+      POSTGRES_PASSWORD: 'test123!'
+      POSTGRES_DB: 'test'
     volumes:
       - ./docker-volumes/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d/:ro
       - ./docker-volumes/postgres/postgresql:/var/lib/postgresql
