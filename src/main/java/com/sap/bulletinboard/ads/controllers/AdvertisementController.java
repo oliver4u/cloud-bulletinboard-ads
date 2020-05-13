@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping(path = AdvertisementController.PATH)
 @RestController
 public class AdvertisementController {
-    public static final String PATH = "api/v1/ads";
+    public static final String PATH = "/api/v1/ads";
     private final Map<Long, Advertisement> ads = new HashMap<>();
 
     @GetMapping
