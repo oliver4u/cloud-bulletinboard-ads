@@ -56,12 +56,6 @@ public class AdvertisementControllerTest {
     }
 
     @Test
-    public void createWithBlankTitle() throws Exception {
-        mockMvc.perform(buildPostRequest(""))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void readAll() throws Exception {
         mockMvc.perform(buildPostRequest(SOME_TITLE))
                 .andExpect(status().isCreated());
