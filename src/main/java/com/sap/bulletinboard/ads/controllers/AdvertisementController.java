@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sap.bulletinboard.ads.models.Advertisement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +18,9 @@ import java.util.Map;
 
 @RequestMapping(path = AdvertisementController.PATH)
 @RestController
+@Validated
 public class AdvertisementController {
+    private static long ID = 0;
     public static final String PATH = "/api/v1/ads";
     private final Map<Long, Advertisement> ads = new HashMap<>();
 
@@ -25,14 +30,14 @@ public class AdvertisementController {
     }
 
     @GetMapping("/{id}")
-    public Advertisement readById(@PathVariable("id") Long id) {
+    public Advertisement readById(@PathVariable("id") @Min(0) Long id) {
         throwIfNonExisting(id);
         return ads.get(id);
     }
 
     @PostMapping
-    public ResponseEntity<Advertisement> add(@RequestBody Advertisement advertisement, UriComponentsBuilder uriComponentsBuilder) {
-        long id = ads.size();
+    public ResponseEntity<Advertisement> add(@RequestBody @Valid Advertisement advertisement, UriComponentsBuilder uriComponentsBuilder) {
+        long id = ID++;
         ads.put(id, advertisement);
 
         URI locationURI = uriComponentsBuilder.path(PATH + "/{id}").buildAndExpand(id).toUri();
