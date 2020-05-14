@@ -19,8 +19,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -30,6 +29,7 @@ public class AdvertisementControllerTest {
 
     private static final String LOCATION = "Location";
     private static final String SOME_TITLE = "MyNewAdvertisement";
+    private static final String SOME_NEW_TITLE = "MyNewAdvertisement - New title!";
 
     @Autowired
     WebApplicationContext context;
@@ -56,6 +56,12 @@ public class AdvertisementControllerTest {
     }
 
     @Test
+    public void createWithBlankTitle() throws Exception {
+        mockMvc.perform(buildPostRequest(""))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void readAll() throws Exception {
         mockMvc.perform(buildPostRequest(SOME_TITLE))
                 .andExpect(status().isCreated());
@@ -74,11 +80,43 @@ public class AdvertisementControllerTest {
 
     @Test
     public void readById() throws Exception {
-        String id = buildAndGetId();
+        String id = postAndGetId();
         mockMvc.perform(buildGetRequest(id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.title", is(SOME_TITLE)));
+    }
+
+    @Test
+    public void singleUpdate() throws Exception {
+        String id = postAndGetId();
+        mockMvc.perform(buildPutRequest(id, SOME_NEW_TITLE))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.title", is(SOME_NEW_TITLE)));
+    }
+
+    @Test
+    public void singleUpdateNotFound() throws Exception {
+        mockMvc.perform(buildPutRequest("1024", SOME_NEW_TITLE))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void singleDelete() throws Exception {
+        String id = postAndGetId();
+        mockMvc.perform(buildDeleteRequest(id))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void massDelete() throws Exception {
+        String id = postAndGetId();
+        mockMvc.perform(buildDeleteRequest(""))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(buildDeleteRequest(id))
+                .andExpect(status().isNotFound());
     }
 
     private MockHttpServletRequestBuilder buildPostRequest(String title) throws JsonProcessingException {
@@ -92,7 +130,18 @@ public class AdvertisementControllerTest {
         return get(AdvertisementController.PATH + "/" + id);
     }
 
-    private String buildAndGetId() throws Exception {
+    private MockHttpServletRequestBuilder buildPutRequest(String id, String title) throws JsonProcessingException {
+        Advertisement advertisement = new Advertisement();
+        advertisement.setTitle(title);
+
+        return put(AdvertisementController.PATH + "/" + id).content(toJson(advertisement)).contentType(APPLICATION_JSON_UTF8);
+    }
+
+    private MockHttpServletRequestBuilder buildDeleteRequest(String id) {
+        return delete(AdvertisementController.PATH + "/" + id);
+    }
+
+    private String postAndGetId() throws Exception {
         MockHttpServletResponse response = mockMvc.perform(buildPostRequest(SOME_TITLE))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse();
