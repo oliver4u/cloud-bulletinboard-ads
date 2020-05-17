@@ -1,0 +1,16 @@
+---
+applications:
+  - name: bulletinboard-ads
+    health-check-type: http
+    health-check-http-endpoint: /health
+    routes:
+      - route: bulletinboard-ads-i311382.cfapps.eu10.hana.ondemand.com
+    memory: 1G
+    timeout: 180
+    path: target/bulletinboard-ads.war
+    buildpacks:
+      - https://github.com/cloudfoundry/java-buildpack.git#v4.30
+    env:
+      # Use the non-blocking /dev/urandom instead of the default to generate random numbers.
+      # This may help with slow startup times, especially when using Spring Boot.
+      JAVA_OPTS: -Djava.security.egd=file:///dev/./urandom
