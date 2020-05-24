@@ -37,39 +37,39 @@ public class AdvertisementController {
     }
 
     @GetMapping
-    public ResponseEntity<AdvertisementList> readAll() {
+    public ResponseEntity<AdvertisementDtoList> readAll() {
         return readPage(FIRST_PAGE_ID);
     }
 
     @GetMapping("/pages/{pageId}")
-    public ResponseEntity<AdvertisementList> readPage(@PathVariable("pageId") int pageId) {
+    public ResponseEntity<AdvertisementDtoList> readPage(@PathVariable("pageId") int pageId) {
         Page<Advertisement> page = repository.findAll(PageRequest.of(pageId, DEFAULT_PAGE_SIZE));
 
-        return new ResponseEntity<AdvertisementList>(new AdvertisementList(page.getContent()),
+        return new ResponseEntity<AdvertisementDtoList>(new AdvertisementDtoList(page.getContent()),
                 buildPageHeader(page, PATH_PAGES), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public Advertisement readById(@PathVariable("id") @Min(0) Long id) {
+    public AdvertisementDto readById(@PathVariable("id") @Min(0) Long id) {
         throwIfIdNonExisting(id);
-        return repository.findById(id).get();
+        return new AdvertisementDto(repository.findById(id).get());
     }
 
     @PostMapping
-    public ResponseEntity<Advertisement> add(@RequestBody @Valid Advertisement advertisement, UriComponentsBuilder uriComponentsBuilder) {
-        throwIfIdExisting(advertisement.getId());
-        Long id = repository.save(advertisement).getId();
+    public ResponseEntity<AdvertisementDto> add(@RequestBody @Valid AdvertisementDto adDto, UriComponentsBuilder uriComponentsBuilder) {
+        throwIfIdExisting(adDto.getId());
+        AdvertisementDto newAd = new AdvertisementDto(repository.save(adDto.toEntity()));
+        Long id = newAd.getId();
 
         URI locationURI = uriComponentsBuilder.path(PATH + "/{id}").buildAndExpand(id).toUri();
-        return ResponseEntity.created(locationURI).body(advertisement);
+        return ResponseEntity.created(locationURI).body(newAd);
     }
 
     @PutMapping("/{id}")
-    public Advertisement update(@PathVariable("id") Long id, @RequestBody Advertisement advertisement) {
+    public AdvertisementDto update(@PathVariable("id") Long id, @RequestBody AdvertisementDto adDto) {
         throwIfIdNonExisting(id);
-        throwIfIdInconsistent(id, advertisement.getId());
-        repository.save(advertisement);
-        return advertisement;
+        throwIfIdInconsistent(id, adDto.getId());
+        return new AdvertisementDto(repository.save(adDto.toEntity()));
     }
 
     @DeleteMapping
@@ -131,12 +131,12 @@ public class AdvertisementController {
         }
     }
 
-    public static class AdvertisementList {
+    private static class AdvertisementDtoList {
         @JsonProperty
-        private List<Advertisement> advertisements = new ArrayList<>();
+        private List<AdvertisementDto> advertisements = new ArrayList<>();
 
-        public AdvertisementList(Iterable<Advertisement> ads) {
-            ads.forEach(advertisements::add);
+        public AdvertisementDtoList(Iterable<Advertisement> ads) {
+            ads.forEach(ad -> advertisements.add(new AdvertisementDto(ad)));
         }
     }
 }

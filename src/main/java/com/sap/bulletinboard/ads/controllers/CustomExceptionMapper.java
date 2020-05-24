@@ -10,6 +10,7 @@ import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -60,6 +61,11 @@ public class CustomExceptionMapper extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<Object> handleNotFoundException(NotFoundException exception, WebRequest request) {
         return convertToResponseEntity(exception, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Object> handleJpaOptimisticLockingFailureException(JpaOptimisticLockingFailureException exception, WebRequest request) {
+        return convertToResponseEntity(exception, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler

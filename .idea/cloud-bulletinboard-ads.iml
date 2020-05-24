@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
       <configuration>
-        <fileset id="fileset" name="WebAppContextConfig" removed="false" profiles="cloud">
+        <fileset id="fileset" name="WebAppContextConfig" removed="false">
           <file>file://$MODULE_DIR$/src/main/java/com/sap/bulletinboard/ads/config/WebAppContextConfig.java</file>
           <file>file://$MODULE_DIR$/src/main/java/com/sap/bulletinboard/ads/config/CloudDatabaseConfig.java</file>
           <file>file://$MODULE_DIR$/src/main/java/com/sap/bulletinboard/ads/config/SpringBootActuatorConfig.java</file>

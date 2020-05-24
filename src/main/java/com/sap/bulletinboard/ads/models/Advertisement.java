@@ -8,12 +8,7 @@ import javax.validation.constraints.NotBlank;
 @Entity
 @Table(name = "advertisement")
 @Data
-public class Advertisement {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
+public class Advertisement extends BaseEntity {
     @NotBlank
     private String title;
 }
