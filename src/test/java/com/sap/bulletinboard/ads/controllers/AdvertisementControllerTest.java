@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -46,7 +46,7 @@ public class AdvertisementControllerTest {
         MockHttpServletResponse response = mockMvc.perform(buildPostRequest(SOME_TITLE))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(LOCATION, is(not(""))))
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.title", is(SOME_TITLE)))
                 .andReturn().getResponse();
 
@@ -68,7 +68,7 @@ public class AdvertisementControllerTest {
 
         mockMvc.perform(buildGetRequest(""))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.advertisements.length()", is(both(greaterThan(0)).and(lessThan(10)))));
     }
 
@@ -77,7 +77,7 @@ public class AdvertisementControllerTest {
         String id = postAndGetId();
         mockMvc.perform(buildGetRequest(id))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.title", is(SOME_TITLE)));
     }
 
@@ -98,7 +98,7 @@ public class AdvertisementControllerTest {
         String id = postAndGetId();
         mockMvc.perform(buildPutRequest(id, SOME_NEW_TITLE))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.title", is(SOME_NEW_TITLE)));
     }
 
@@ -129,7 +129,7 @@ public class AdvertisementControllerTest {
         Advertisement advertisement = new Advertisement();
         advertisement.setTitle(title);
 
-        return post(AdvertisementController.PATH).content(toJson(advertisement)).contentType(APPLICATION_JSON_UTF8);
+        return post(AdvertisementController.PATH).content(toJson(advertisement)).contentType(APPLICATION_JSON);
     }
 
     private MockHttpServletRequestBuilder buildGetRequest(String id) {
@@ -140,7 +140,7 @@ public class AdvertisementControllerTest {
         Advertisement advertisement = new Advertisement();
         advertisement.setTitle(title);
 
-        return put(AdvertisementController.PATH + "/" + id).content(toJson(advertisement)).contentType(APPLICATION_JSON_UTF8);
+        return put(AdvertisementController.PATH + "/" + id).content(toJson(advertisement)).contentType(APPLICATION_JSON);
     }
 
     private MockHttpServletRequestBuilder buildDeleteRequest(String id) {

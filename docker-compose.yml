@@ -4,14 +4,15 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - 5672:5672
-      - 15672:15672
+      - "5672:5672"
+      - "15672:15672"
+
   postgres:
     restart: always
     image: postgres:9.6
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=testuser
-      - POSTGRES_DB=test
-      - POSTGRES_PASSWORD=test123!
+      POSTGRES_USER: testuser
+      POSTGRES_DB: test
+      POSTGRES_PASSWORD: test123!
