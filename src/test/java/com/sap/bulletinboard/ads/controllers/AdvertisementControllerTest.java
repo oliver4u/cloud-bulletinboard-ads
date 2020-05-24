@@ -96,7 +96,12 @@ public class AdvertisementControllerTest {
     @Test
     public void singleUpdate() throws Exception {
         String id = postAndGetId();
-        mockMvc.perform(buildPutRequest(id, SOME_NEW_TITLE))
+
+        Advertisement advertisement = new Advertisement();
+        advertisement.setId(Long.valueOf(id));
+        advertisement.setTitle(SOME_NEW_TITLE);
+
+        mockMvc.perform(buildPutRequest(id, advertisement))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.title", is(SOME_NEW_TITLE)));
@@ -104,8 +109,24 @@ public class AdvertisementControllerTest {
 
     @Test
     public void singleUpdateNotFound() throws Exception {
-        mockMvc.perform(buildPutRequest("1024", SOME_NEW_TITLE))
+        Advertisement advertisement = new Advertisement();
+        advertisement.setId((long) 1024);
+        advertisement.setTitle(SOME_NEW_TITLE);
+
+        mockMvc.perform(buildPutRequest("1024", advertisement))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void singleUpdateInconsistentId () throws Exception {
+        String id = postAndGetId();
+
+        Advertisement advertisement = new Advertisement();
+        advertisement.setId((long) 1024);
+        advertisement.setTitle(SOME_NEW_TITLE);
+
+        mockMvc.perform(buildPutRequest(id, advertisement))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -136,10 +157,7 @@ public class AdvertisementControllerTest {
         return get(AdvertisementController.PATH + "/" + id);
     }
 
-    private MockHttpServletRequestBuilder buildPutRequest(String id, String title) throws JsonProcessingException {
-        Advertisement advertisement = new Advertisement();
-        advertisement.setTitle(title);
-
+    private MockHttpServletRequestBuilder buildPutRequest(String id, Advertisement advertisement) throws JsonProcessingException {
         return put(AdvertisementController.PATH + "/" + id).content(toJson(advertisement)).contentType(APPLICATION_JSON);
     }
 
