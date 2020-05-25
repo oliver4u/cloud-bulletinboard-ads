@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.IOException;
+
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -95,13 +97,15 @@ public class AdvertisementControllerTest {
 
     @Test
     public void singleUpdate() throws Exception {
-        String id = postAndGetId();
+        MockHttpServletResponse response = mockMvc.perform(buildPostRequest(SOME_TITLE))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse();
 
-        Advertisement advertisement = new Advertisement();
-        advertisement.setId(Long.valueOf(id));
-        advertisement.setTitle(SOME_NEW_TITLE);
+        AdvertisementDto adDto = convertJsonContent(response, AdvertisementDto.class);
 
-        mockMvc.perform(buildPutRequest(id, advertisement))
+        adDto.setTitle(SOME_NEW_TITLE);
+
+        mockMvc.perform(buildPutRequest(String.valueOf(adDto.getId()), adDto))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.title", is(SOME_NEW_TITLE)));
@@ -109,11 +113,11 @@ public class AdvertisementControllerTest {
 
     @Test
     public void singleUpdateNotFound() throws Exception {
-        Advertisement advertisement = new Advertisement();
-        advertisement.setId((long) 1024);
-        advertisement.setTitle(SOME_NEW_TITLE);
+        AdvertisementDto adDto = new AdvertisementDto();
+        adDto.setId(1024L);
+        adDto.setTitle(SOME_NEW_TITLE);
 
-        mockMvc.perform(buildPutRequest("1024", advertisement))
+        mockMvc.perform(buildPutRequest("1024", adDto))
                 .andExpect(status().isNotFound());
     }
 
@@ -121,11 +125,11 @@ public class AdvertisementControllerTest {
     public void singleUpdateInconsistentId () throws Exception {
         String id = postAndGetId();
 
-        Advertisement advertisement = new Advertisement();
-        advertisement.setId((long) 1024);
-        advertisement.setTitle(SOME_NEW_TITLE);
+        AdvertisementDto adDto = new AdvertisementDto();
+        adDto.setId(1024L);
+        adDto.setTitle(SOME_NEW_TITLE);
 
-        mockMvc.perform(buildPutRequest(id, advertisement))
+        mockMvc.perform(buildPutRequest(id, adDto))
                 .andExpect(status().isBadRequest());
     }
 
@@ -157,8 +161,8 @@ public class AdvertisementControllerTest {
         return get(AdvertisementController.PATH + "/" + id);
     }
 
-    private MockHttpServletRequestBuilder buildPutRequest(String id, Advertisement advertisement) throws JsonProcessingException {
-        return put(AdvertisementController.PATH + "/" + id).content(toJson(advertisement)).contentType(APPLICATION_JSON);
+    private MockHttpServletRequestBuilder buildPutRequest(String id, AdvertisementDto adDto) throws JsonProcessingException {
+        return put(AdvertisementController.PATH + "/" + id).content(toJson(adDto)).contentType(APPLICATION_JSON);
     }
 
     private MockHttpServletRequestBuilder buildDeleteRequest(String id) {
@@ -171,10 +175,16 @@ public class AdvertisementControllerTest {
                 .andReturn().getResponse();
 
         String location = response.getHeader(LOCATION);
+        assert location != null;
         return location.substring(location.lastIndexOf("/") + 1);
     }
 
     private String toJson(Object object) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(object);
+    }
+
+    private <T> T convertJsonContent(MockHttpServletResponse response, Class<T> clazz) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(response.getContentAsByteArray(), clazz);
     }
 }
